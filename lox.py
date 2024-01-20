@@ -2,12 +2,16 @@ import sys
 import os
 
 from scanner import Scanner
+from error_reporter import ErrorReporter
 
 
+# sysexits.sh
+# https://man.freebsd.org/cgi/man.cgi?query=sysexits&apropos=0&sektion=0&manpath=FreeBSD+4.3-RELEASE&format=html
 class Lox:
-    had_error = False
 
     def __init__(self):
+        self.error_reporter = ErrorReporter(tag="lox")
+
         if len(sys.argv) > 2:
             print("Usage: plox [script]")
             sys.exit(64)
@@ -21,7 +25,7 @@ class Lox:
         with open(path, "r") as f:
             self.run(f.read())
 
-        if self.had_error:
+        if self.error_reporter.had_error:
             sys.exit(65)
 
     def run_prompt(self):
@@ -29,7 +33,7 @@ class Lox:
             try:
                 line = input("> ")
                 self.run(line)
-                self.had_error = False
+                self.error_reporter.had_error = False
             except KeyboardInterrupt:
                 break
             except EOFError:
@@ -41,13 +45,6 @@ class Lox:
 
         for token in tokens:
             print(token)
-
-    def error(self, line, message):
-        self.report(line, "", message)
-
-    @staticmethod
-    def report(line, where, message):
-        print(f"[line {line}] Error{where}: {message}")
 
 
 def main():
