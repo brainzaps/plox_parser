@@ -1,8 +1,12 @@
 import sys
 import os
 
+from scanner import Scanner
+
 
 class Lox:
+    had_error = False
+
     def __init__(self):
         if len(sys.argv) > 2:
             print("Usage: plox [script]")
@@ -17,22 +21,37 @@ class Lox:
         with open(path, "r") as f:
             self.run(f.read())
 
-    def run(self, source):
-        pass
+        if self.had_error:
+            sys.exit(65)
 
     def run_prompt(self):
         while True:
-            line = input("> ")
-
-            if not line:
+            try:
+                line = input("> ")
+                self.run(line)
+                self.had_error = False
+            except KeyboardInterrupt:
+                break
+            except EOFError:
                 break
 
-            self.run(line)
+    @staticmethod
+    def run(source):
+        tokens = Scanner(source).scan_tokens()
+
+        for token in tokens:
+            print(token)
+
+    def error(self, line, message):
+        self.report(line, "", message)
+
+    @staticmethod
+    def report(line, where, message):
+        print(f"[line {line}] Error{where}: {message}")
 
 
 def main():
     lox = Lox()
-    print("Hello World!")
 
 
 if __name__ == "__main__":
