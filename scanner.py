@@ -1,5 +1,6 @@
 from token_type import TokenType
 from token import Token
+from error import LoxError
 
 
 class Scanner:
@@ -44,6 +45,8 @@ class Scanner:
             self.add_token(TokenType.SEMICOLON)
         elif c == '*':
             self.add_token(TokenType.STAR)
+        else:
+            LoxError.error(self.line, "Unexpected character.")
 
     def is_at_end(self):
         return self.current >= len(self.source)
