@@ -66,7 +66,10 @@ class Scanner:
         elif c == '"':
             self.string()
         else:
-            LoxError.error(self.line, "Unexpected character.")
+            if self.is_digit(c):
+                self.number()
+            else:
+                LoxError.error(self.line, "Unexpected character.")
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
@@ -83,6 +86,18 @@ class Scanner:
         subst = self.source[self.start + 1:self.current - 1]
         self.add_token(TokenType.STRING, subst)
 
+    def number(self):
+        while self.is_digit(self.peek()):
+            self.advance()
+
+        if self.peek() == '.' and self.is_digit(self.peek_next()):
+            self.advance()
+
+            while self.is_digit(self.peek()):
+                self.advance()
+
+            self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
+
     def match(self, expected):
         if self.is_at_end():
             return False
@@ -96,6 +111,15 @@ class Scanner:
         if self.is_at_end():
             return '\0'
         return self.source[self.current]
+
+    def peek_next(self):
+        if self.current + 1 >= len(self.source):
+            return '\0'
+        return self.source[self.current + 1]
+
+    @staticmethod
+    def is_digit(c):
+        return '0' <= c <= '9'
 
     def is_at_end(self):
         return self.current >= len(self.source)
