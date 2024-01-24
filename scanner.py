@@ -4,6 +4,24 @@ from error import LoxError
 
 
 class Scanner:
+    keywords = {
+        "and": TokenType.AND,
+        "class": TokenType.CLASS,
+        "else": TokenType.ELSE,
+        "false": TokenType.FALSE,
+        "for": TokenType.FOR,
+        "fun": TokenType.FUN,
+        "if": TokenType.IF,
+        "nil": TokenType.NIL,
+        "or": TokenType.OR,
+        "print": TokenType.PRINT,
+        "return": TokenType.RETURN,
+        "super": TokenType.SUPER,
+        "this": TokenType.THIS,
+        "true": TokenType.TRUE,
+        "var": TokenType.VAR,
+        "while": TokenType.WHILE
+    }
 
     def __init__(self, source):
         self.source = source
@@ -68,8 +86,27 @@ class Scanner:
         else:
             if self.is_digit(c):
                 self.number()
+            elif self.is_alpha(c):
+                self.identifier()
             else:
                 LoxError.error(self.line, "Unexpected character.")
+
+    def identifier(self):
+        while self.is_alpha_numeric(self.peek()):
+            self.advance()
+
+        text = self.source[self.start:self.current]
+
+        token_type = self.keywords.get(text, TokenType.IDENTIFIER)
+
+        self.add_token(token_type)
+
+    @staticmethod
+    def is_alpha(c):
+        return ('a' <= c <= 'z') or ('A' <= c <= 'Z') or c == '_'
+
+    def is_alpha_numeric(self, c):
+        return self.is_alpha(c) or self.is_digit(c)
 
     def string(self):
         while self.peek() != '"' and not self.is_at_end():
