@@ -2,7 +2,7 @@ import sys
 import os
 
 from scanner import Scanner
-from error_reporter import ErrorReporter
+from error import LoxError
 
 
 # sysexits.sh
@@ -10,8 +10,6 @@ from error_reporter import ErrorReporter
 class Lox:
 
     def __init__(self):
-        self.error_reporter = ErrorReporter(tag="lox")
-
         if len(sys.argv) > 2:
             print("Usage: plox [script]")
             sys.exit(64)
@@ -25,7 +23,7 @@ class Lox:
         with open(path, "r") as f:
             self.run(f.read())
 
-        if self.error_reporter.had_error:
+        if LoxError.had_error:
             sys.exit(65)
 
     def run_prompt(self):
@@ -33,7 +31,7 @@ class Lox:
             try:
                 line = input("> ")
                 self.run(line)
-                self.error_reporter.had_error = False
+                LoxError.had_error = False
             except KeyboardInterrupt:
                 break
             except EOFError:
@@ -45,11 +43,3 @@ class Lox:
 
         for token in tokens:
             print(token)
-
-
-def main():
-    lox = Lox()
-
-
-if __name__ == "__main__":
-    main()
